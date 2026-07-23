@@ -20,7 +20,6 @@
   "homepage": "https://github.com/hayribakici/scratchblocks-ts",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -40,6 +39,7 @@
     "dist/markdown.*",
     "dist/renderer.*",
     "dist/types.*",
+    "dist/lru-cache.*",
     "README.md",
     "LICENSE"
   ],
