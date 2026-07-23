@@ -46,8 +46,8 @@ class ScratchblocksRenderer {
         return this.getSVG(source, renderOptions);
     }
     toInlineSVG(source, options) {
-        const inlineOptions = withDefaultOptions(options, true);
-        return this.getSVG(source, inlineOptions);
+        const renderOptions = withDefaultOptions(options, true);
+        return this.getSVG(source, renderOptions);
     }
     getSVG(source, options) {
         const cacheKey = JSON.stringify({ source, ...options });

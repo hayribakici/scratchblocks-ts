@@ -12,29 +12,26 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/hayribakici/obsidian-scratchblocks.git",
-    "directory": "scratchblocks-ts"
+    "url": "https://github.com/hayribakici/scratchblocks-ts.git"
   },
   "bugs": {
-    "url": "https://github.com/hayribakici/obsidian-scratchblocks/issues"
+    "url": "https://github.com/hayribakici/scratchblocks-ts/issues"
   },
-  "homepage": "https://github.com/hayribakici/obsidian-scratchblocks/tree/main/scratchblocks-ts",
+  "homepage": "https://github.com/hayribakici/scratchblocks-ts",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
       "default": "./dist/index.js"
     },
     "./markdown": {
       "types": "./dist/markdown.d.ts",
-      "require": "./dist/markdown.js",
       "default": "./dist/markdown.js"
     },
     "./renderer": {
       "types": "./dist/renderer.d.ts",
-      "require": "./dist/renderer.js",
       "default": "./dist/renderer.js"
     }
   },
@@ -43,7 +40,8 @@
     "dist/markdown.*",
     "dist/renderer.*",
     "dist/types.*",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
