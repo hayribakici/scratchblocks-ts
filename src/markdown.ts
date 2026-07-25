@@ -1,5 +1,12 @@
 const INLINE_SCRATCHBLOCKS_PREFIX = "sb ";
 
+/**
+ * Gets the source from inline text such as `sb move (10) steps`.
+ * Returns `null` if the prefix or source is missing.
+ *
+ * @param text - Text to read
+ * @returns The inline source or `null`
+ */
 export function getInlineScratchblocksSource(text: string): string | null {
   const trimmed = text.trim();
 
@@ -10,6 +17,13 @@ export function getInlineScratchblocksSource(text: string): string | null {
   return trimmed.slice(INLINE_SCRATCHBLOCKS_PREFIX.length).trim() || null;
 }
 
+/**
+ * Gets all non-empty scratchblocks fences from Markdown.
+ * Both backtick and tilde fences are supported.
+ *
+ * @param text - Markdown text to read
+ * @returns The source from each scratchblocks fence
+ */
 export function getAllScratchblocksSourcesFromText(text: string): string[] {
   const sources: string[] = [];
   let fenceMarker = "";
@@ -46,6 +60,14 @@ export function getAllScratchblocksSourcesFromText(text: string): string[] {
   return sources;
 }
 
+/**
+ * Gets the fenced scratchblocks source at a line.
+ * The line number is zero-based. Incomplete and empty fences return `null`.
+ *
+ * @param text - Markdown text to read
+ * @param cursorLine - Zero-based line number
+ * @returns The source at the line or `null`
+ */
 export function getScratchblocksSourceAtLine(
   text: string,
   cursorLine: number

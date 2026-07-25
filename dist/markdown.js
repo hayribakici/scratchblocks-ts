@@ -2,6 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getScratchblocksSourceAtLine = exports.getAllScratchblocksSourcesFromText = exports.getInlineScratchblocksSource = void 0;
 const INLINE_SCRATCHBLOCKS_PREFIX = "sb ";
+/**
+ * Gets the source from inline text such as `sb move (10) steps`.
+ * Returns `null` if the prefix or source is missing.
+ *
+ * @param text - Text to read
+ * @returns The inline source or `null`
+ */
 function getInlineScratchblocksSource(text) {
     const trimmed = text.trim();
     if (!trimmed.toLowerCase().startsWith(INLINE_SCRATCHBLOCKS_PREFIX)) {
@@ -10,6 +17,13 @@ function getInlineScratchblocksSource(text) {
     return trimmed.slice(INLINE_SCRATCHBLOCKS_PREFIX.length).trim() || null;
 }
 exports.getInlineScratchblocksSource = getInlineScratchblocksSource;
+/**
+ * Gets all non-empty scratchblocks fences from Markdown.
+ * Both backtick and tilde fences are supported.
+ *
+ * @param text - Markdown text to read
+ * @returns The source from each scratchblocks fence
+ */
 function getAllScratchblocksSourcesFromText(text) {
     const sources = [];
     let fenceMarker = "";
@@ -38,6 +52,14 @@ function getAllScratchblocksSourcesFromText(text) {
     return sources;
 }
 exports.getAllScratchblocksSourcesFromText = getAllScratchblocksSourcesFromText;
+/**
+ * Gets the fenced scratchblocks source at a line.
+ * The line number is zero-based. Incomplete and empty fences return `null`.
+ *
+ * @param text - Markdown text to read
+ * @param cursorLine - Zero-based line number
+ * @returns The source at the line or `null`
+ */
 function getScratchblocksSourceAtLine(text, cursorLine) {
     const lines = text.split(/\r?\n/);
     const openingFence = findOpeningScratchblocksFence(lines, cursorLine);
