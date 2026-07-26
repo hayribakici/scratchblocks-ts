@@ -1,4 +1,4 @@
-import scratchblocks from "scratchblocks";
+imprt scratchblocks from "scratchblocks";
 import allLanguages from "scratchblocks/locales/all.js";
 
 import { LRUCache } from "./lru-cache";

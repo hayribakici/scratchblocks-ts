@@ -45,7 +45,7 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "esbuild tests/lru-cache.test.ts --bundle --platform=node --outfile=/tmp/scratchblocks-ts-lru-cache.test.js && node /tmp/scratchblocks-ts-lru-cache.test.js",
+    "test": "esbuild tests/index.ts --bundle --platform=node --outfile=/tmp/scratchblocks-ts.test.js && node /tmp/scratchblocks-ts.test.js",
     "prepack": "npm run build"
   },
   "dependencies": {
