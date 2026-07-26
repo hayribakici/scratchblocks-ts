@@ -1,7 +1,7 @@
 {
   "name": "scratchblocks-ts",
-  "version": "0.1.1",
-  "description": "Framework-agnostic Scratchblocks rendering and Markdown extraction",
+  "version": "0.1.2",
+  "description": "Scratchblocks wrapper for TypeScript and markdown parser",
   "license": "MIT",
   "keywords": [
     "scratch",

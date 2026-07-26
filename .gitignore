@@ -1,9 +1,8 @@
-# Created by https://www.toptal.com/developers/gitignore/api/typescript
-# Edit at https://www.toptal.com/developers/gitignore?templates=typescript
+### Node / TypeScript ###
+node_modules/
+*.tsbuildinfo
+npm-debug.log*
 
-#!! ERROR: typescript is undefined. Use list command to see defined gitignore types !!#
-
-# End of https://www.toptal.com/developers/gitignore/api/typescript
 # Created by https://www.toptal.com/developers/gitignore/api/macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos
 
