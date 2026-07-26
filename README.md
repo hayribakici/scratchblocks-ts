@@ -11,6 +11,8 @@ Markdown.
 npm install scratchblocks-ts
 ```
 
+[scratchblocks-ts on npm](https://www.npmjs.com/package/scratchblocks-ts)
+
 ## Rendering
 
 ```ts
