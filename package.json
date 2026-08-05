@@ -49,6 +49,8 @@
     "prepack": "npm run build"
   },
   "dependencies": {
+    "jszip": "^3.10.1",
+    "parse-sb3-blocks": "0.5.2",
     "scratchblocks": "3.7.1"
   },
   "devDependencies": {
