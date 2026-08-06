@@ -1,17 +1,13 @@
-import assert from "assert/strict";
 import { readFileSync } from "fs";
+import JSZip from "jszip";
 import path from "path";
+import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import {
   readSB3,
   ScratchProject,
 } from "../src/project/project";
-import { OpcodeGreenFlag } from "../src/project/opcodes";
-
-async function test(name: string, run: () => Promise<void>) {
-  await run();
-  console.log(`ok - ${name}`);
-}
+import { Opcode } from "../src/project/opcodes";
 
 async function readTestProject(): Promise<ScratchProject> {
   const bytes = readFileSync(path.join(process.cwd(), "tests/game.sb3"));
@@ -20,104 +16,147 @@ async function readTestProject(): Promise<ScratchProject> {
   return readSB3(file);
 }
 
-void test("reads a Scratch project from an SB3 file", async () => {
-  const project = await readTestProject();
+async function createSB3(projectJson?: string): Promise<File> {
+  const archive = new JSZip();
 
-  assert.ok(project instanceof ScratchProject);
-}).catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  if (projectJson !== undefined) {
+    archive.file("project.json", projectJson);
+  }
 
-void test("reads the targets from a Scratch project", async () => {
-  const project = await readTestProject();
+  const bytes = await archive.generateAsync({ type: "uint8array" });
+  return new File([bytes], "test.sb3");
+}
 
-  assert.deepEqual(
-    project.getTargets().map(({ name, isStage }) => ({ name, isStage })),
-    [
+describe("ScratchProject", () => {
+  let project: ScratchProject;
+
+  beforeAll(async () => {
+    project = await readTestProject();
+  });
+
+  it("reads a Scratch project from an SB3 file", () => {
+    expect(project).toBeInstanceOf(ScratchProject);
+  });
+
+  it("reads its targets", () => {
+    expect(
+      project.getTargets().map(({ name, isStage }) => ({ name, isStage }))
+    ).toEqual([
       { name: "Stage", isStage: true },
       { name: "Crab", isStage: false },
-    ]
-  );
-}).catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+    ]);
+  });
 
-void test("reads the scripts from a target", async () => {
-  const project = await readTestProject();
-  const target = project.getTarget("Crab");
+  it("returns undefined for an unknown target", () => {
+    expect(project.getTarget("Unknown")).toBeUndefined();
+  });
 
-  assert.ok(target);
-  assert.deepEqual(
-    target?.getScripts().map(script => script.opcode),
-    ["event_whenflagclicked", "procedures_definition"]
-  );
-  assert.ok(target?.getScripts().every(script => script.sb3Json.id));
-}).catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  it("returns no scripts for an empty target", () => {
+    expect(project.getTarget("Stage")?.getScripts()).toEqual([]);
+  });
 
-void test("finds blocks contained in a script", async () => {
-  const project = await readTestProject();
-  const target = project.getTarget("Crab");
+  it("reads scripts from a target", () => {
+    const scripts = project.getTarget("Crab")?.getScripts();
 
-  assert.ok(target);
-  const script = target.getScripts().find(
-    script => script.opcode === OpcodeGreenFlag
-  );
+    expect(scripts?.map(script => script.opcode)).toEqual([
+      "event_whenflagclicked",
+      "procedures_definition",
+    ]);
+    expect(scripts?.every(script => script.sb3Json.id)).toBe(true);
+  });
 
-  assert.ok(script);
-  assert.equal(script.contains(OpcodeGreenFlag), true);
-  assert.equal(script.contains("procedures_call"), true);
-  assert.equal(script.contains("control_if"), true);
-  assert.equal(script.contains("sensing_touchingobject"), true);
-  assert.equal(script.contains("looks_sayforsecs"), true);
-}).catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+  it("finds blocks contained in a script", () => {
+    const script = project.getTarget("Crab")?.getScripts().find(
+      script => script.opcode === Opcode.GreenFlag
+    );
 
-void test("does not include blocks from another script", async () => {
-  const project = await readTestProject();
-  const target = project.getTarget("Crab");
+    expect(script?.contains(Opcode.GreenFlag)).toBe(true);
+    expect(script?.contains("procedures_call")).toBe(true);
+    expect(script?.contains("control_if")).toBe(true);
+    expect(script?.contains("sensing_touchingobject")).toBe(true);
+    expect(script?.contains("looks_sayforsecs")).toBe(true);
+  });
 
-  assert.ok(target);
-  const script = target.getScripts().find(
-    script => script.opcode === OpcodeGreenFlag
-  );
+  it("does not include blocks from another script", () => {
+    const script = project.getTarget("Crab")?.getScripts().find(
+      script => script.opcode === Opcode.GreenFlag
+    );
 
-  assert.ok(script);
-  assert.equal(script.contains("procedures_definition"), false);
-  assert.equal(script.contains("motion_gotoxy"), false);
-  assert.equal(script.contains("control_repeat_until"), false);
-}).catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+    expect(script?.contains("procedures_definition")).toBe(false);
+    expect(script?.contains("motion_gotoxy")).toBe(false);
+    expect(script?.contains("control_repeat_until")).toBe(false);
+    expect(script?.contains("unknown_opcode")).toBe(false);
+  });
 
-void test("converts a script to Scratchblocks source", async () => {
-  const project = await readTestProject();
-  const target = project.getTarget("Crab");
+  it("keeps extension opcodes", () => {
+    const extensionProject = new ScratchProject({
+      targets: [{
+        name: "Controller",
+        isStage: false,
+        blocks: {
+          root: {
+            opcode: "microcontroller_whenButtonPressed",
+            next: "camera",
+            parent: null,
+            inputs: {},
+            topLevel: true,
+          },
+          camera: {
+            opcode: "camera_takePicture",
+            next: null,
+            parent: "root",
+            inputs: {},
+            topLevel: false,
+          },
+        },
+      }],
+    });
+    const script = extensionProject
+      .getTarget("Controller")
+      ?.getScripts()[0];
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
 
-  assert.ok(target);
-  const script = target?.getScripts().find(
-    script => script.opcode === OpcodeGreenFlag
-  );
+    expect(script?.opcode).toBe("microcontroller_whenButtonPressed");
+    expect(script?.contains("camera_takePicture")).toBe(true);
+    expect(script?.toScratchblocks()).toBe("");
+    expect(warn).toHaveBeenCalledTimes(2);
 
-  assert.ok(script);
-  assert.equal(
-    script.toScratchblocks(),
-    [
+    warn.mockRestore();
+  });
+
+  it("converts a script to Scratchblocks source", () => {
+    const script = project.getTarget("Crab")?.getScripts().find(
+      script => script.opcode === Opcode.GreenFlag
+    );
+
+    expect(script?.toScratchblocks()).toBe([
       "when @greenFlag clicked",
       "springe herum bis die Leertaste gedrückt wird::custom",
       "if <touching [edge v]?> then",
       "    say [Gewonnen!] for (2) seconds",
       "end",
-    ].join("\n")
-  );
-}).catch((error: unknown) => {
-  console.error(error);
-  process.exitCode = 1;
+    ].join("\n"));
+  });
+});
+
+describe("readSB3", () => {
+  it("rejects a file that is not a ZIP archive", async () => {
+    const file = new File(["not a zip archive"], "broken.sb3");
+
+    await expect(readSB3(file)).rejects.toThrow();
+  });
+
+  it("rejects an archive without project.json", async () => {
+    const file = await createSB3();
+
+    await expect(readSB3(file)).rejects.toThrow(
+      "The SB3 archive does not contain project.json"
+    );
+  });
+
+  it("rejects invalid project JSON", async () => {
+    const file = await createSB3("not json");
+
+    await expect(readSB3(file)).rejects.toBeInstanceOf(SyntaxError);
+  });
 });

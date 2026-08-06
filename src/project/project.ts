@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import { toScratchblocks } from "parse-sb3-blocks";
 import { LanguageCode } from "../types";
 
-export type ScratchOpcode = string;
+
 
 export class ScratchProject {
 
@@ -54,7 +54,7 @@ export class ScratchScript {
 
     constructor(
         readonly target: ScratchTarget,
-        readonly opcode: ScratchOpcode,
+        readonly opcode: string,
         readonly sb3Json: {
             readonly id: string;
             readonly blocks: any;
@@ -62,7 +62,7 @@ export class ScratchScript {
         private readonly lang: LanguageCode
     ) { }
 
-    contains(opcode: ScratchOpcode): boolean {
+    contains(opcode: string): boolean {
         var stack = [this.sb3Json.id];
         var visited = new Set<String>();
         while (stack.length > 0) {
@@ -80,25 +80,23 @@ export class ScratchScript {
             if (block.next) {
                 stack.push(block.next);
             }
-            stack.push(...this.getChildren(id));
+            this.pushChildren(id, stack);
         }
         return false;
     }
 
-    private getChildren(id: string): string[] {
+    private pushChildren(id: string, stack: string[]): void {
         const inputs = this.sb3Json.blocks[id].inputs;
-        const children: string[] = [];
 
         for (const name of Object.keys(inputs)) {
             const input = inputs[name];
 
             for (const value of input.slice(1)) {
                 if (typeof value === "string" && this.sb3Json.blocks[value]) {
-                    children.push(value);
+                    stack.push(value);
                 }
             }
         }
-        return children;
     }
 
     toScratchblocks(lang: LanguageCode = this.lang): string {

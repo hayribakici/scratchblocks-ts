@@ -1,4 +1,4 @@
-import assert from "assert/strict";
+import { describe, expect, it } from "vitest";
 
 import {
   getAllScratchblocksSourcesFromText,
@@ -6,81 +6,68 @@ import {
   getScratchblocksSourceAtLine,
 } from "../src/markdown";
 
-function test(name: string, run: () => void) {
-  run();
-  console.log(`ok - ${name}`);
-}
+describe("Markdown", () => {
+  it("gets inline scratchblocks source", () => {
+    expect(getInlineScratchblocksSource("  sb move (10) steps  "))
+      .toBe("move (10) steps");
+    expect(getInlineScratchblocksSource("SB when green flag clicked"))
+      .toBe("when green flag clicked");
+  });
 
-test("gets inline scratchblocks source", () => {
-  assert.equal(
-    getInlineScratchblocksSource("  sb move (10) steps  "),
-    "move (10) steps"
-  );
-  assert.equal(
-    getInlineScratchblocksSource("SB when green flag clicked"),
-    "when green flag clicked"
-  );
-});
+  it("rejects text without inline scratchblocks source", () => {
+    expect(getInlineScratchblocksSource("move (10) steps")).toBeNull();
+    expect(getInlineScratchblocksSource("sb   ")).toBeNull();
+    expect(getInlineScratchblocksSource("sbox")).toBeNull();
+  });
 
-test("rejects text without inline scratchblocks source", () => {
-  assert.equal(getInlineScratchblocksSource("move (10) steps"), null);
-  assert.equal(getInlineScratchblocksSource("sb   "), null);
-  assert.equal(getInlineScratchblocksSource("sbox"), null);
-});
+  it("gets all supported scratchblocks fences", () => {
+    const markdown = [
+      "```scratchblocks",
+      "move (10) steps",
+      "```",
+      "~~~sb",
+      "turn cw (15) degrees",
+      "~~~",
+      "```js",
+      "console.log('ignored')",
+      "```",
+    ].join("\n");
 
-test("gets all supported scratchblocks fences", () => {
-  const markdown = [
-    "```scratchblocks",
-    "move (10) steps",
-    "```",
-    "~~~sb",
-    "turn cw (15) degrees",
-    "~~~",
-    "```js",
-    "console.log('ignored')",
-    "```",
-  ].join("\n");
+    expect(getAllScratchblocksSourcesFromText(markdown)).toEqual([
+      "move (10) steps",
+      "turn cw (15) degrees",
+    ]);
+  });
 
-  assert.deepEqual(getAllScratchblocksSourcesFromText(markdown), [
-    "move (10) steps",
-    "turn cw (15) degrees",
-  ]);
-});
-
-test("ignores empty and incomplete scratchblocks fences", () => {
-  assert.deepEqual(
-    getAllScratchblocksSourcesFromText(
+  it("ignores empty and incomplete scratchblocks fences", () => {
+    expect(getAllScratchblocksSourcesFromText(
       ["```scratchblocks", "```", "```sb", "move (10) steps"].join("\n")
-    ),
-    []
-  );
-});
+    )).toEqual([]);
+  });
 
-test("gets scratchblocks source at a zero-based line", () => {
-  const markdown = [
-    "# Example",
-    "```scratchblocks",
-    "when green flag clicked",
-    "move (10) steps",
-    "```",
-  ].join("\n");
+  it("gets scratchblocks source at a zero-based line", () => {
+    const markdown = [
+      "# Example",
+      "```scratchblocks",
+      "when green flag clicked",
+      "move (10) steps",
+      "```",
+    ].join("\n");
 
-  const expected = "when green flag clicked\nmove (10) steps";
+    const expected = "when green flag clicked\nmove (10) steps";
 
-  assert.equal(getScratchblocksSourceAtLine(markdown, 1), expected);
-  assert.equal(getScratchblocksSourceAtLine(markdown, 2), expected);
-  assert.equal(getScratchblocksSourceAtLine(markdown, 3), expected);
-  assert.equal(getScratchblocksSourceAtLine(markdown, 0), null);
-  assert.equal(getScratchblocksSourceAtLine(markdown, 4), null);
-});
+    expect(getScratchblocksSourceAtLine(markdown, 1)).toBe(expected);
+    expect(getScratchblocksSourceAtLine(markdown, 2)).toBe(expected);
+    expect(getScratchblocksSourceAtLine(markdown, 3)).toBe(expected);
+    expect(getScratchblocksSourceAtLine(markdown, 0)).toBeNull();
+    expect(getScratchblocksSourceAtLine(markdown, 4)).toBeNull();
+  });
 
-test("returns null for an empty or incomplete fence at a line", () => {
-  assert.equal(
-    getScratchblocksSourceAtLine("```scratchblocks\n```", 0),
-    null
-  );
-  assert.equal(
-    getScratchblocksSourceAtLine("```scratchblocks\nmove (10) steps", 1),
-    null
-  );
+  it("returns null for an empty or incomplete fence at a line", () => {
+    expect(getScratchblocksSourceAtLine("```scratchblocks\n```", 0)).toBeNull();
+    expect(getScratchblocksSourceAtLine(
+      "```scratchblocks\nmove (10) steps",
+      1
+    )).toBeNull();
+  });
 });

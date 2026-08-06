@@ -1,29 +1,27 @@
-import assert from "assert/strict";
+import { describe, expect, it } from "vitest";
+
 import { LRUCache } from "../src/lru-cache";
 
-function test(name: string, run: () => void) {
-    run();
-    console.log(`ok - ${name}`);
-}
-
-test("evicts the least recently used entry", () => {
+describe("LRUCache", () => {
+  it("evicts the least recently used entry", () => {
     const cache = new LRUCache<string, number>(2);
 
     cache.set("one", 1);
     cache.set("two", 2);
-    assert.equal(cache.get("one"), 1);
+    expect(cache.get("one")).toBe(1);
 
     cache.set("three", 3);
 
-    assert.equal(cache.get("two"), null);
-    assert.equal(cache.get("one"), 1);
-    assert.equal(cache.get("three"), 3);
-});
+    expect(cache.get("two")).toBeNull();
+    expect(cache.get("one")).toBe(1);
+    expect(cache.get("three")).toBe(3);
+  });
 
-test("does not cache entries when max size is zero", () => {
+  it("does not cache entries when max size is zero", () => {
     const cache = new LRUCache<string, number>(0);
 
     cache.set("one", 1);
 
-    assert.equal(cache.get("one"), null);
+    expect(cache.get("one")).toBeNull();
+  });
 });

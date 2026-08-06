@@ -9,5 +9,5 @@ export type {
   RenderOptions,
   ScratchblocksStyle,
 } from "./types";
-export { ScratchProject, ScratchTarget, ScratchScript, ScratchOpcode, readSB3 } from './project/project';
+export { ScratchProject, ScratchTarget, ScratchScript, readSB3 } from './project/project';
 export * from './project/opcodes';

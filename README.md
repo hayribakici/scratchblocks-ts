@@ -1,9 +1,6 @@
 # scratchblocks-ts
 
-A small TypeScript wrapper around
-[scratchblocks](https://github.com/scratchblocks/scratchblocks). It renders
-scratchblocks as SVG or PNG and additionally includes helpers for reading them from
-Markdown.
+A small TypeScript toolkit rendering [scratchblocks](https://github.com/scratchblocks/scratchblocks) as SVG or PNG and retrieving Scratch code from different sources, such as Markdown or Scratch projects.
 
 ## Installation
 
@@ -94,6 +91,27 @@ const inlineSource = getInlineScratchblocksSource("sb move (10) steps");
 
 Line numbers are zero-based. The single-source helpers return `null` if there
 is no source.
+
+## Scratch projects
+
+Retrieve scratchblocks from Scratch projects:
+
+```ts
+import { Opcode, readSB3 } from "scratchblocks-ts";
+
+// retrieve File object
+const project = await readSB3(file);
+// Sprite named `Crab`
+const target = project.getTarget("Crab");
+const scripts = target?.getScripts();
+
+// returns the script that starts with the `when green flag clicked`
+const greenFlagScript = scripts?.find(script =>
+  script.contains(Opcode.GreenFlag)
+);
+// convert script to scratchblocks syntax
+const source = greenFlagScript?.toScratchblocks();
+```
 
 ## Development
 
