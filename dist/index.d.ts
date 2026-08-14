@@ -1,2 +1,2 @@
-export { ScratchblocksRenderer } from "./renderer";
-export type { LanguageCode, RenderOptions, ScratchblocksStyle, } from "./types";
+export { ScratchblocksEngine } from "./engine";
+export type { LanguageCode, RenderOptions, ScratchblocksEngineOptions, ScratchblocksStyle, } from "./types";

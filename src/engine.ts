@@ -1,10 +1,14 @@
 import scratchblocks from "scratchblocks";
 import allLanguages from "scratchblocks/locales/all.js";
-
-import { LRUCache } from "./lru-cache";
-import type { LanguageCode, RenderOptions } from "./types";
 import scratch2CSS from "scratchblocks/scratch2/style.css.js";
 import scratch3CSS from "scratchblocks/scratch3/style.css.js";
+
+import { LRUCache } from "./lru-cache";
+import type {
+  LanguageCode,
+  RenderOptions,
+  ScratchblocksEngineOptions,
+} from "./types";
 
 const STYLE_ELEMENT_ID = "scratchblocks-styles";
 
@@ -26,32 +30,37 @@ interface ScratchblocksView {
   exportPNG(callback: (url: string) => void, scale?: number): void;
 }
 
-export class ScratchblocksRenderer {
+export class ScratchblocksEngine {
 
   private readonly svgCache: LRUCache<string, SVGElement>;
 
-  constructor(
-    private readonly document: Document,
-    options: { cacheSize?: number } = {}
-  ) {
-    ensureLanguagesLoaded();
-    this.injectStylesIfNecessary();
+  private constructor(options: ScratchblocksEngineOptions = {}) {
     this.svgCache = new LRUCache<string, SVGElement>(
       options.cacheSize ?? MAX_SVG_CACHE_ENTRIES
     );
   }
 
-  /** Injects Scratchblocks styles once into this renderer's document. */
-  private injectStylesIfNecessary(): void {
-    if (this.document.getElementById(STYLE_ELEMENT_ID)) {
+  /** Creates an engine and installs Scratchblocks styles in `document`. */
+  static forDocument(
+    document: Document,
+    options: ScratchblocksEngineOptions = {}
+  ): ScratchblocksEngine {
+    ensureLanguagesLoaded();
+    this.injectStylesIfNecessary(document);
+
+    return new ScratchblocksEngine(options);
+  }
+
+  private static injectStylesIfNecessary(document: Document): void {
+    if (document.getElementById(STYLE_ELEMENT_ID)) {
       return;
     }
 
-    const style = this.document.createElement("style");
+    const style = document.createElement("style");
     style.id = STYLE_ELEMENT_ID;
     style.textContent = `${scratch2CSS}\n${scratch3CSS}`;
 
-    this.document.head.append(style);
+    document.head.append(style);
   }
 
 
@@ -126,6 +135,8 @@ export class ScratchblocksRenderer {
     source: string,
     options: ReturnType<typeof withDefaultOptions>
   ): SVGElement {
+    ensureLanguagesLoaded();
+
     const cacheKey = JSON.stringify({ source, ...options });
     const cached = this.svgCache.get(cacheKey);
 
@@ -209,6 +220,8 @@ export class ScratchblocksRenderer {
   }
 
   private createView(source: string, options: RenderOptions): ScratchblocksView {
+    ensureLanguagesLoaded();
+
     const renderOptions = withDefaultOptions(options);
 
     return scratchblocks.newView(

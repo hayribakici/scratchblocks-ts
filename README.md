@@ -14,12 +14,12 @@ npm install scratchblocks-ts
 
 ```ts
 import {
-  ScratchblocksRenderer,
+  ScratchblocksEngine,
   type RenderOptions,
 } from "scratchblocks-ts";
 
 const targetDocument = window.document;
-const renderer = new ScratchblocksRenderer(targetDocument, {
+const engine = ScratchblocksEngine.forDocument(targetDocument, {
   cacheSize: 20, // default is 100; use 0 to disable cache
 });
 const options: RenderOptions = {
@@ -28,7 +28,7 @@ const options: RenderOptions = {
   scale: 1.4, // optional, default is 1.0
 };
 
-const svg = renderer.toSVG(
+const svg = engine.toSVG(
   `when green flag clicked
 move (10) steps`,
   options
@@ -42,7 +42,7 @@ targetDocument.body.append(svg);
 Use
 
 ```ts
-const svg = renderer.toInlineSVG("move (10) steps", options);
+const svg = engine.toInlineSVG("move (10) steps", options);
 ```
 
 for a block inside a line of text.
@@ -53,13 +53,13 @@ The other output formats work in the same way:
 
 ```ts
 // returns svg-markup as a string
-const svgSource = renderer.toSVGString("move (10) steps", options);
+const svgSource = engine.toSVGString("move (10) steps", options);
 
 // returns png as a blob
-const pngBlob = await renderer.toPNGBlob("move (10) steps", options);
+const pngBlob = await engine.toPNGBlob("move (10) steps", options);
 
 // returns a loaded `<img>` Element with the scratchblock image
-const image = await renderer.toPNGImage("move (10) steps", options);
+const image = await engine.toPNGImage("move (10) steps", options);
 ```
 
 The available styles are `scratch2`, `scratch3`, and

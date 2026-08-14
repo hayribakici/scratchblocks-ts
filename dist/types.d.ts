@@ -2,6 +2,11 @@
 export type LanguageCode = string;
 /** Visual style of the blocks. */
 export type ScratchblocksStyle = "scratch2" | "scratch3" | "scratch3-high-contrast";
+/** Options used when creating an engine. */
+export interface ScratchblocksEngineOptions {
+    /** Maximum number of cached SVG renders. Use `0` to disable caching. */
+    cacheSize?: number;
+}
 /** Rendering options. */
 export interface RenderOptions {
     /** Languages used for parsing. */

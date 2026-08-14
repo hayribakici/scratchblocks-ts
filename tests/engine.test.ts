@@ -33,7 +33,7 @@ vi.mock("scratchblocks/scratch3/style.css.js", () => ({
   default: ".sb3-events { fill: #ffbf00; }",
 }));
 
-import { ScratchblocksRenderer } from "../src/renderer";
+import { ScratchblocksEngine } from "../src/engine";
 
 const renderOptions = {
   languages: ["en"],
@@ -60,11 +60,11 @@ function createDocument() {
   return { document, elements };
 }
 
-describe("ScratchblocksRenderer", () => {
+describe("ScratchblocksEngine", () => {
   it("injects Scratch 2 and Scratch 3 styles", () => {
     const { document, elements } = createDocument();
 
-    new ScratchblocksRenderer(document);
+    ScratchblocksEngine.forDocument(document);
 
     const style = elements.get("scratchblocks-styles");
     expect(style?.textContent).toContain(".sb-events");
@@ -75,56 +75,58 @@ describe("ScratchblocksRenderer", () => {
     const first = createDocument();
     const second = createDocument();
 
-    new ScratchblocksRenderer(first.document);
+    ScratchblocksEngine.forDocument(first.document);
     const firstStyle = first.elements.get("scratchblocks-styles");
 
-    new ScratchblocksRenderer(first.document);
-    new ScratchblocksRenderer(second.document);
+    ScratchblocksEngine.forDocument(first.document);
+    ScratchblocksEngine.forDocument(second.document);
 
     expect(first.elements.get("scratchblocks-styles")).toBe(firstStyle);
     expect(second.elements.get("scratchblocks-styles")).toBeDefined();
   });
 
   it("loads languages only once", () => {
-    new ScratchblocksRenderer(createDocument().document);
-    new ScratchblocksRenderer(createDocument().document);
+    ScratchblocksEngine.forDocument(createDocument().document);
+    ScratchblocksEngine.forDocument(createDocument().document);
 
     expect(loadLanguages).toHaveBeenCalledTimes(1);
   });
 
   it("caches repeated SVG renders by default", () => {
     render.mockClear();
-    const renderer = new ScratchblocksRenderer(createDocument().document);
+    const engine = ScratchblocksEngine.forDocument(
+      createDocument().document
+    );
 
-    renderer.toSVG("move (10) steps", renderOptions);
-    renderer.toSVG("move (10) steps", renderOptions);
+    engine.toSVG("move (10) steps", renderOptions);
+    engine.toSVG("move (10) steps", renderOptions);
 
     expect(render).toHaveBeenCalledTimes(1);
   });
 
   it("can disable the SVG cache", () => {
     render.mockClear();
-    const renderer = new ScratchblocksRenderer(
+    const engine = ScratchblocksEngine.forDocument(
       createDocument().document,
       { cacheSize: 0 }
     );
 
-    renderer.toSVG("move (10) steps", renderOptions);
-    renderer.toSVG("move (10) steps", renderOptions);
+    engine.toSVG("move (10) steps", renderOptions);
+    engine.toSVG("move (10) steps", renderOptions);
 
     expect(render).toHaveBeenCalledTimes(2);
   });
 
   it("respects a custom SVG cache size", () => {
     render.mockClear();
-    const renderer = new ScratchblocksRenderer(
+    const engine = ScratchblocksEngine.forDocument(
       createDocument().document,
       { cacheSize: 1 }
     );
 
-    renderer.toSVG("move (10) steps", renderOptions);
-    renderer.toSVG("turn cw (15) degrees", renderOptions);
-    renderer.toSVG("move (10) steps", renderOptions);
+    engine.toSVG("move (10) steps", renderOptions);
+    engine.toSVG("turn cw (15) degrees", renderOptions);
+    engine.toSVG("move (10) steps", renderOptions);
 
     expect(render).toHaveBeenCalledTimes(3);
   });
