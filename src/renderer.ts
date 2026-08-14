@@ -3,9 +3,22 @@ import allLanguages from "scratchblocks/locales/all.js";
 
 import { LRUCache } from "./lru-cache";
 import type { LanguageCode, RenderOptions } from "./types";
+import scratch2CSS from "scratchblocks/scratch2/style.css.js";
+import scratch3CSS from "scratchblocks/scratch3/style.css.js";
+
+const STYLE_ELEMENT_ID = "scratchblocks-styles";
 
 const MAX_SVG_CACHE_ENTRIES = 100;
 const DEFAULT_SCALE = 1;
+
+let languagesLoaded = false;
+function ensureLanguagesLoaded(): void {
+  if (languagesLoaded) {
+    return;
+  }
+  scratchblocks.loadLanguages(allLanguages);
+  languagesLoaded = true;
+}
 
 interface ScratchblocksView {
   render(): SVGElement;
@@ -14,35 +27,33 @@ interface ScratchblocksView {
 }
 
 export class ScratchblocksRenderer {
-  private static instance: ScratchblocksRenderer | undefined;
 
-  private readonly svgCache = new LRUCache<string, SVGElement>(
-    MAX_SVG_CACHE_ENTRIES
-  );
+  private readonly svgCache: LRUCache<string, SVGElement>;
 
-  private constructor() {
-    scratchblocks.loadLanguages(allLanguages);
-    scratchblocks.appendStyles();
+  constructor(
+    private readonly document: Document,
+    options: { cacheSize?: number } = {}
+  ) {
+    ensureLanguagesLoaded();
+    this.injectStylesIfNecessary();
+    this.svgCache = new LRUCache<string, SVGElement>(
+      options.cacheSize ?? MAX_SVG_CACHE_ENTRIES
+    );
   }
 
-  /**
-   * Gets the shared renderer for the current page.
-   *
-   * @returns The renderer instance
-   */
-  static getInstance(): ScratchblocksRenderer {
-    return this.instance ??= new ScratchblocksRenderer();
+  /** Injects Scratchblocks styles once into this renderer's document. */
+  private injectStylesIfNecessary(): void {
+    if (this.document.getElementById(STYLE_ELEMENT_ID)) {
+      return;
+    }
+
+    const style = this.document.createElement("style");
+    style.id = STYLE_ELEMENT_ID;
+    style.textContent = `${scratch2CSS}\n${scratch3CSS}`;
+
+    this.document.head.append(style);
   }
 
-  /**
-   * Gets the shared renderer for the current page.
-   *
-   * @deprecated Use `getInstance()` instead
-   * @returns The renderer instance
-   */
-  static create(): ScratchblocksRenderer {
-    return this.getInstance();
-  }
 
   /** @returns All available language codes */
   getLanguageCodes(): LanguageCode[] {
@@ -86,7 +97,7 @@ export class ScratchblocksRenderer {
 
   /**
    * Renders source as SVG.
-   * Results are cached.
+   * Results are cached unless caching is disabled.
    *
    * @param source - Scratchblocks source to render
    * @param options - Languages, style and scale used for rendering

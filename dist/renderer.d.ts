@@ -1,21 +1,12 @@
 import type { LanguageCode, RenderOptions } from "./types";
 export declare class ScratchblocksRenderer {
-    private static instance;
+    private readonly document;
     private readonly svgCache;
-    private constructor();
-    /**
-     * Gets the shared renderer for the current page.
-     *
-     * @returns The renderer instance
-     */
-    static getInstance(): ScratchblocksRenderer;
-    /**
-     * Gets the shared renderer for the current page.
-     *
-     * @deprecated Use `getInstance()` instead
-     * @returns The renderer instance
-     */
-    static create(): ScratchblocksRenderer;
+    constructor(document: Document, options?: {
+        cacheSize?: number;
+    });
+    /** Injects Scratchblocks styles once into this renderer's document. */
+    private injectStylesIfNecessary;
     /** @returns All available language codes */
     getLanguageCodes(): LanguageCode[];
     /**
@@ -43,7 +34,7 @@ export declare class ScratchblocksRenderer {
     hasLanguage(languageCode: LanguageCode): boolean;
     /**
      * Renders source as SVG.
-     * Results are cached.
+     * Results are cached unless caching is disabled.
      *
      * @param source - Scratchblocks source to render
      * @param options - Languages, style and scale used for rendering

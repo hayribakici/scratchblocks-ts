@@ -1,9 +1,6 @@
 # scratchblocks-ts
 
-A small TypeScript wrapper around
-[scratchblocks](https://github.com/scratchblocks/scratchblocks). It renders
-scratchblocks as SVG or PNG and additionally includes helpers for reading them from
-Markdown.
+A small TypeScript wrapper around [scratchblocks](https://github.com/scratchblocks/scratchblocks) for rendering Scratch code as SVG or PNG.
 
 ## Installation
 
@@ -21,7 +18,10 @@ import {
   type RenderOptions,
 } from "scratchblocks-ts";
 
-const renderer = ScratchblocksRenderer.getInstance();
+const targetDocument = window.document;
+const renderer = new ScratchblocksRenderer(targetDocument, {
+  cacheSize: 20, // default is 100; use 0 to disable cache
+});
 const options: RenderOptions = {
   languages: ["en"],
   style: "scratch3", // additional options: scratch2, scratch3-high-contrast
@@ -34,11 +34,8 @@ move (10) steps`,
   options
 );
 
-document.body.append(svg);
+targetDocument.body.append(svg);
 ```
-
-The renderer needs a browser DOM. It keeps rendered SVGs in a cache, so the
-same instance is used throughout the page.
 
 ### Inline rendering
 
@@ -67,33 +64,6 @@ const image = await renderer.toPNGImage("move (10) steps", options);
 
 The available styles are `scratch2`, `scratch3`, and
 `scratch3-high-contrast`.
-
-## Markdown
-
-The Markdown helpers do not need a DOM. Fenced blocks can use `scratchblock`,
-`scratchblocks`, or `sb`:
-
-````md
-```scratchblocks
-when green flag clicked
-move (10) steps
-```
-````
-
-```ts
-import {
-  getAllScratchblocksSourcesFromText,
-  getInlineScratchblocksSource,
-  getScratchblocksSourceAtLine,
-} from "scratchblocks-ts/markdown";
-
-const sources = getAllScratchblocksSourcesFromText(markdown);
-const sourceAtLine = getScratchblocksSourceAtLine(markdown, 4);
-const inlineSource = getInlineScratchblocksSource("sb move (10) steps");
-```
-
-Line numbers are zero-based. The single-source helpers return `null` if there
-is no source.
 
 ## Development
 

@@ -23,7 +23,6 @@ declare module "scratchblocks" {
 
   interface ScratchblocksApi {
     allLanguages: Record<string, ScratchblocksLanguage | undefined>;
-    appendStyles(): void;
     loadLanguages(
       languages: Record<string, ScratchblocksLanguage | undefined>
     ): void;
@@ -50,4 +49,14 @@ declare module "scratchblocks/locales/all.js" {
 
   const languages: Record<string, ScratchblocksLocale | undefined>;
   export default languages;
+}
+
+declare module "scratchblocks/scratch2/style.css.js" {
+  const css: string;
+  export default css;
+}
+
+declare module "scratchblocks/scratch3/style.css.js" {
+  const css: string;
+  export default css;
 }
