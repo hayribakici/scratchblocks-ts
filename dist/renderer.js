@@ -9,29 +9,19 @@ const all_js_1 = __importDefault(require("scratchblocks/locales/all.js"));
 const lru_cache_1 = require("./lru-cache");
 const MAX_SVG_CACHE_ENTRIES = 100;
 const DEFAULT_SCALE = 1;
+let languagesLoaded = false;
+function ensureLanguagesLoaded() {
+    if (languagesLoaded) {
+        return;
+    }
+    scratchblocks_1.default.loadLanguages(all_js_1.default);
+    languagesLoaded = true;
+}
 class ScratchblocksRenderer {
-    constructor() {
+    constructor(document) {
+        this.document = document;
         this.svgCache = new lru_cache_1.LRUCache(MAX_SVG_CACHE_ENTRIES);
-        scratchblocks_1.default.loadLanguages(all_js_1.default);
-        scratchblocks_1.default.appendStyles();
-    }
-    /**
-     * Gets the shared renderer for the current page.
-     *
-     * @returns The renderer instance
-     */
-    static getInstance() {
-        var _a;
-        return (_a = this.instance) !== null && _a !== void 0 ? _a : (this.instance = new ScratchblocksRenderer());
-    }
-    /**
-     * Gets the shared renderer for the current page.
-     *
-     * @deprecated Use `getInstance()` instead
-     * @returns The renderer instance
-     */
-    static create() {
-        return this.getInstance();
+        ensureLanguagesLoaded();
     }
     /** @returns All available language codes */
     getLanguageCodes() {

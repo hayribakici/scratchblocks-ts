@@ -23,7 +23,6 @@ declare module "scratchblocks" {
 
   interface ScratchblocksApi {
     allLanguages: Record<string, ScratchblocksLanguage | undefined>;
-    appendStyles(): void;
     loadLanguages(
       languages: Record<string, ScratchblocksLanguage | undefined>
     ): void;

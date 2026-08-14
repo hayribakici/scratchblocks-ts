@@ -1,12 +1,11 @@
 {
   "name": "scratchblocks-ts",
   "version": "0.1.2",
-  "description": "Scratchblocks wrapper for TypeScript and markdown parser",
+  "description": "Scratchblocks rendering for TypeScript",
   "license": "MIT",
   "keywords": [
     "scratch",
     "scratchblocks",
-    "markdown",
     "svg",
     "renderer"
   ],
@@ -25,10 +24,6 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./markdown": {
-      "types": "./dist/markdown.d.ts",
-      "default": "./dist/markdown.js"
-    },
     "./renderer": {
       "types": "./dist/renderer.d.ts",
       "default": "./dist/renderer.js"
@@ -36,9 +31,7 @@
   },
   "files": [
     "dist/index.*",
-    "dist/markdown.*",
     "dist/renderer.*",
-    "dist/project/*",
     "dist/types.*",
     "dist/lru-cache.*",
     "README.md",
@@ -46,12 +39,10 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
+    "test": "vitest run --dir tests",
     "prepack": "npm run build"
   },
   "dependencies": {
-    "jszip": "^3.10.1",
-    "parse-sb3-blocks": "0.5.2",
     "scratchblocks": "3.7.1"
   },
   "devDependencies": {
