@@ -3,6 +3,10 @@ import allLanguages from "scratchblocks/locales/all.js";
 
 import { LRUCache } from "./lru-cache";
 import type { LanguageCode, RenderOptions } from "./types";
+import scratch2CSS from "scratchblocks/scratch2/style.css.js";
+import scratch3CSS from "scratchblocks/scratch3/style.css.js";
+
+const STYLE_ELEMENT_ID = "scratchblocks-styles";
 
 const MAX_SVG_CACHE_ENTRIES = 100;
 const DEFAULT_SCALE = 1;
@@ -30,6 +34,20 @@ export class ScratchblocksRenderer {
 
   constructor(private readonly document: Document) {
     ensureLanguagesLoaded();
+    this.injectStylesIfNecessary();
+  }
+
+  /** Injects Scratchblocks styles once into this renderer's document. */
+  private injectStylesIfNecessary(): void {
+    if (this.document.getElementById(STYLE_ELEMENT_ID)) {
+      return;
+    }
+
+    const style = this.document.createElement("style");
+    style.id = STYLE_ELEMENT_ID;
+    style.textContent = `${scratch2CSS}\n${scratch3CSS}`;
+
+    this.document.head.append(style);
   }
 
 

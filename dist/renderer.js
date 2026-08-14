@@ -7,6 +7,9 @@ exports.ScratchblocksRenderer = void 0;
 const scratchblocks_1 = __importDefault(require("scratchblocks"));
 const all_js_1 = __importDefault(require("scratchblocks/locales/all.js"));
 const lru_cache_1 = require("./lru-cache");
+const style_css_js_1 = __importDefault(require("scratchblocks/scratch2/style.css.js"));
+const style_css_js_2 = __importDefault(require("scratchblocks/scratch3/style.css.js"));
+const STYLE_ELEMENT_ID = "scratchblocks-styles";
 const MAX_SVG_CACHE_ENTRIES = 100;
 const DEFAULT_SCALE = 1;
 let languagesLoaded = false;
@@ -22,6 +25,17 @@ class ScratchblocksRenderer {
         this.document = document;
         this.svgCache = new lru_cache_1.LRUCache(MAX_SVG_CACHE_ENTRIES);
         ensureLanguagesLoaded();
+        this.injectStylesIfNecessary();
+    }
+    /** Injects Scratchblocks styles once into this renderer's document. */
+    injectStylesIfNecessary() {
+        if (this.document.getElementById(STYLE_ELEMENT_ID)) {
+            return;
+        }
+        const style = this.document.createElement("style");
+        style.id = STYLE_ELEMENT_ID;
+        style.textContent = `${style_css_js_1.default}\n${style_css_js_2.default}`;
+        this.document.head.append(style);
     }
     /** @returns All available language codes */
     getLanguageCodes() {

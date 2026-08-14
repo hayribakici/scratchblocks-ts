@@ -3,6 +3,8 @@ export declare class ScratchblocksRenderer {
     private readonly document;
     private readonly svgCache;
     constructor(document: Document);
+    /** Injects Scratchblocks styles once into this renderer's document. */
+    private injectStylesIfNecessary;
     /** @returns All available language codes */
     getLanguageCodes(): LanguageCode[];
     /**

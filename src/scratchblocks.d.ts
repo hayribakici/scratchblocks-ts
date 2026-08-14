@@ -50,3 +50,13 @@ declare module "scratchblocks/locales/all.js" {
   const languages: Record<string, ScratchblocksLocale | undefined>;
   export default languages;
 }
+
+declare module "scratchblocks/scratch2/style.css.js" {
+  const css: string;
+  export default css;
+}
+
+declare module "scratchblocks/scratch3/style.css.js" {
+  const css: string;
+  export default css;
+}
