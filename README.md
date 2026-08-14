@@ -18,7 +18,10 @@ import {
   type RenderOptions,
 } from "scratchblocks-ts";
 
-const renderer = ScratchblocksRenderer.getInstance();
+const targetDocument = window.document;
+const renderer = new ScratchblocksRenderer(targetDocument, {
+  cacheSize: 20, // default is 100; use 0 to disable cache
+});
 const options: RenderOptions = {
   languages: ["en"],
   style: "scratch3", // additional options: scratch2, scratch3-high-contrast
@@ -31,11 +34,8 @@ move (10) steps`,
   options
 );
 
-document.body.append(svg);
+targetDocument.body.append(svg);
 ```
-
-The renderer needs a browser DOM. The shared renderer keeps successful SVG
-renders in a cache.
 
 ### Inline rendering
 

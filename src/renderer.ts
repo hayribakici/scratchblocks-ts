@@ -28,13 +28,17 @@ interface ScratchblocksView {
 
 export class ScratchblocksRenderer {
 
-  private readonly svgCache = new LRUCache<string, SVGElement>(
-    MAX_SVG_CACHE_ENTRIES
-  );
+  private readonly svgCache: LRUCache<string, SVGElement>;
 
-  constructor(private readonly document: Document) {
+  constructor(
+    private readonly document: Document,
+    options: { cacheSize?: number } = {}
+  ) {
     ensureLanguagesLoaded();
     this.injectStylesIfNecessary();
+    this.svgCache = new LRUCache<string, SVGElement>(
+      options.cacheSize ?? MAX_SVG_CACHE_ENTRIES
+    );
   }
 
   /** Injects Scratchblocks styles once into this renderer's document. */
@@ -93,7 +97,7 @@ export class ScratchblocksRenderer {
 
   /**
    * Renders source as SVG.
-   * Results are cached.
+   * Results are cached unless caching is disabled.
    *
    * @param source - Scratchblocks source to render
    * @param options - Languages, style and scale used for rendering

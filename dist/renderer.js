@@ -21,11 +21,12 @@ function ensureLanguagesLoaded() {
     languagesLoaded = true;
 }
 class ScratchblocksRenderer {
-    constructor(document) {
+    constructor(document, options = {}) {
+        var _a;
         this.document = document;
-        this.svgCache = new lru_cache_1.LRUCache(MAX_SVG_CACHE_ENTRIES);
         ensureLanguagesLoaded();
         this.injectStylesIfNecessary();
+        this.svgCache = new lru_cache_1.LRUCache((_a = options.cacheSize) !== null && _a !== void 0 ? _a : MAX_SVG_CACHE_ENTRIES);
     }
     /** Injects Scratchblocks styles once into this renderer's document. */
     injectStylesIfNecessary() {
@@ -74,7 +75,7 @@ class ScratchblocksRenderer {
     }
     /**
      * Renders source as SVG.
-     * Results are cached.
+     * Results are cached unless caching is disabled.
      *
      * @param source - Scratchblocks source to render
      * @param options - Languages, style and scale used for rendering

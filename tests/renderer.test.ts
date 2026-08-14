@@ -1,13 +1,23 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { loadLanguages } = vi.hoisted(() => ({
-  loadLanguages: vi.fn(),
-}));
+const { loadLanguages, parse, render } = vi.hoisted(() => {
+  const createSVG = (): SVGElement => ({
+    cloneNode: () => createSVG(),
+  }) as unknown as SVGElement;
+
+  return {
+    loadLanguages: vi.fn(),
+    parse: vi.fn(() => ({})),
+    render: vi.fn(() => createSVG()),
+  };
+});
 
 vi.mock("scratchblocks", () => ({
   default: {
     allLanguages: {},
     loadLanguages,
+    parse,
+    render,
   },
 }));
 
@@ -24,6 +34,11 @@ vi.mock("scratchblocks/scratch3/style.css.js", () => ({
 }));
 
 import { ScratchblocksRenderer } from "../src/renderer";
+
+const renderOptions = {
+  languages: ["en"],
+  style: "scratch3" as const,
+};
 
 function createDocument() {
   const elements = new Map<string, { id: string; textContent: string }>();
@@ -75,5 +90,42 @@ describe("ScratchblocksRenderer", () => {
     new ScratchblocksRenderer(createDocument().document);
 
     expect(loadLanguages).toHaveBeenCalledTimes(1);
+  });
+
+  it("caches repeated SVG renders by default", () => {
+    render.mockClear();
+    const renderer = new ScratchblocksRenderer(createDocument().document);
+
+    renderer.toSVG("move (10) steps", renderOptions);
+    renderer.toSVG("move (10) steps", renderOptions);
+
+    expect(render).toHaveBeenCalledTimes(1);
+  });
+
+  it("can disable the SVG cache", () => {
+    render.mockClear();
+    const renderer = new ScratchblocksRenderer(
+      createDocument().document,
+      { cacheSize: 0 }
+    );
+
+    renderer.toSVG("move (10) steps", renderOptions);
+    renderer.toSVG("move (10) steps", renderOptions);
+
+    expect(render).toHaveBeenCalledTimes(2);
+  });
+
+  it("respects a custom SVG cache size", () => {
+    render.mockClear();
+    const renderer = new ScratchblocksRenderer(
+      createDocument().document,
+      { cacheSize: 1 }
+    );
+
+    renderer.toSVG("move (10) steps", renderOptions);
+    renderer.toSVG("turn cw (15) degrees", renderOptions);
+    renderer.toSVG("move (10) steps", renderOptions);
+
+    expect(render).toHaveBeenCalledTimes(3);
   });
 });
